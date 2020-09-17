@@ -1,13 +1,15 @@
 <template>
-  <input type="file" @input="loadFolder" webkitdirectory style="height: 100px; border: 1px solid #fff;"/>
+  <div v-if="!loaded" class="upload">
+    <label for="file">Drop folder here to load data</label>
+    <input type="file" id="file" @input="loadFolder" webkitdirectory/>
+  </div>
   <Outbox v-if="outbox" :outbox="outbox" :actor="actor" :folder="folder"/>
 </template>
 
 <script>
-import { shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, onMounted } from 'vue'
 import Outbox from './components/outbox.vue'
-import loadData from './loadData'
-
+import { readAsDataURL, readAsText } from './file-reader'
 export default {
   name: 'App',
   components: {
@@ -17,12 +19,7 @@ export default {
     let actor = shallowRef(null)
     let outbox = shallowRef(null)
     let folder = shallowRef(null)
-
-    /*onMounted(async () => {
-      let [actorData, outboxData] = await loadData('archive')
-      actor.value = actorData
-      outbox.value = outboxData
-    })*/
+    let loaded = ref(false)
 
     async function loadFolder(e) {
       let files = Array.from(e.target.files)
@@ -36,34 +33,35 @@ export default {
       actor.value = JSON.parse(await readAsText(dir['/actor.json']))
       actor.value.avatar = await readAsDataURL(dir['/avatar.jpeg'])
       outbox.value = JSON.parse(await readAsText(dir['/outbox.json']))
-    }
-
-    function readAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        let reader = new FileReader()
-        reader.onload = function() {
-          resolve(reader.result)
-        }
-        reader.readAsDataURL(file)
-      })
-    }
-
-    function readAsText(file) {
-      return new Promise((resolve, reject) => {
-        let reader = new FileReader()
-        reader.onload = function() {
-          resolve(reader.result)
-        }
-        reader.readAsText(file)
-      })
+      loaded.value = true
     }
 
     return {
       loadFolder,
       actor,
       outbox,
-      folder
+      folder,
+      loaded
     }
   }
 }
 </script>
+
+<style>
+.upload {
+  border: 3px dashed #fff;
+  border-radius: 5px;
+  padding: 100px;
+  position: relative;
+  text-align: center;
+  margin-top: 50px;
+}
+.upload input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+</style>

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "node build.js"
   },
   "dependencies": {
     "moment": "^2.28.0",
