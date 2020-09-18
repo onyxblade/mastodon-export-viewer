@@ -9,7 +9,7 @@
           <span>
             <a :href="entry.actor" class="status__display-name muted">
               <bdi><strong>{{userName(entry.actor)}}</strong></bdi>
-            </a> 转嘟了
+            </a> boosted
           </span>
         </div>
         <div class="status">
@@ -51,11 +51,17 @@
 <script>
 import moment from 'moment'
 import { onMounted, ref } from 'vue'
+import useRemoteNote from '../functions/use-remote-note'
 
 export default {
   props: ['entry', 'folder', 'actor'],
   setup({ entry, folder, actor }) {
     let attachments = ref([])
+
+    let remoteNote
+    if (entry.type === 'Announce') {
+      remoteNote = useRemoteNote(entry.object)
+    }
 
     function formatDate(dateString) {
       return moment(dateString).format('lll')
@@ -97,7 +103,8 @@ export default {
       formatDate,
       attachments,
       userName,
-      avatar
+      avatar,
+      remoteNote
     }
   }
 }
